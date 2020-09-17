@@ -24,10 +24,11 @@ text-align: center;
  flex-direction: column;
  align-items: center;
  justify-content: center;
+ width: 100%;
 }
 
 #webcam{
-height: 300;
+width: 700;
 }
 
 button{
