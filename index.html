@@ -1,69 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Tesseract.js Video Streaming Recognition</title>
-  <link rel="stylesheet" href="./css/style.css">
-  <script src='https://unpkg.com/tesseract.js@v2.0.0-beta.1/dist/tesseract.min.js'></script>
-</head>
-<body>
-  <div id="root">
-    <video id="poem-video" width="640" height="360" crossorigin="anonymous">
-      <source src="./do-not-go-gentle.mp4" type="video/mp4">
-    </video>
-    <div id="sep"></div>
-    <div id="messages">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tesseract.js Video Streaming Recognition</title>
+    <link rel="stylesheet" href="style.css">
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"
+    ></script>
+    <script src="https://unpkg.com/tesseract.js@v2.0.0-beta.1/dist/tesseract.min.js"></script>
+  </head>
+  <body>
+
+    <div id="root">
+      <div id="messages">
+        <br>
+        <br>
+  
+        <h3 id="placa"></h3>
+        <h1 id="achou">PLACA</h1>
+      </div>
+      <div>
+      <button onclick="play()">PLAY</button><button onclick="flip()">FLIP</button>
     </div>
-  </div>
-  <script>
-    const { createWorker, createScheduler } = Tesseract;
-    const scheduler = createScheduler();
-    const video = document.getElementById('poem-video');
-    const messages = document.getElementById('messages');
-    let timerId = null;
+      <video id="webcam" autoplay playsinline ></video>
+      <canvas id="canvas" class="d-none"></canvas>
 
-    const addMessage = (m, bold) => {
-      let msg = `<p>${m}</p>`;
-      if (bold) {
-        msg = `<p class="bold">${m}</p>`;
-      }
-      messages.innerHTML += msg;
-      messages.scrollTop = messages.scrollHeight;
-    }
+      <!-- <video id="poem-video" width="640" height="360" crossorigin="anonymous">
 
-    const doOCR = async () => {
-      const c = document.createElement('canvas');
-      c.width = 640;
-      c.height = 360;
-      c.getContext('2d').drawImage(video, 0, 0, 640, 360);
-      const start = new Date();
-      const { data: { text } } = await scheduler.addJob('recognize', c);
-      const end = new Date()
-      addMessage(`[${start.getMinutes()}:${start.getSeconds()} - ${end.getMinutes()}:${end.getSeconds()}], ${(end - start) / 1000} s`);
-      text.split('\n').forEach((line) => {
-        addMessage(line);
-      });
-    };
+    </video> -->
+      <div id="sep"></div>
+  
+    </div>
+    <script>
+      const webcamElement = document.getElementById("webcam");
+      const canvasElement = document.getElementById("canvas");
+      const spanElement = document.getElementById("placa");
+      const span2Element =  document.getElementById("achou");
+      const webcam = new Webcam(webcamElement, "user", canvasElement);
 
-    (async () => {
-      addMessage('Initializing Tesseract.js');
-      for (let i = 0; i < 4; i++) {
-        const worker = createWorker();
-        await worker.load();
-        await worker.loadLanguage('eng');
-        await worker.initialize('eng');
-        scheduler.addWorker(worker);
-      }
-      addMessage('Initialized Tesseract.js');
-      video.addEventListener('play', () => {
+      webcam
+        .start()
+        .then((result) => {
+          console.log("webcam started");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      const { createWorker, createScheduler } = Tesseract;
+      const scheduler = createScheduler();
+      // const video = document.getElementById('webcam');
+      const messages = document.getElementById("messages");
+      let timerId = null;
+
+      const addMessage = (m, bold) => {
+        window.scrollTo(0,0);
+        let msg = m;
+        if(bold)msg = msg + bold;
+        if(msg)spanElement.innerHTML = msg;
+        let re = /[A-Z]{3}-[0-9]{4}/;
+        let achouPlaca = msg.match(re);
+        if(achouPlaca)span2Element.innerHTML = achouPlaca[0];
+        console.log(msg)
+       
+      };
+
+      const doOCR = async () => {
+        canvasElement.width = 640;
+        canvasElement.height = 360;
+        canvasElement.getContext("2d").drawImage(webcamElement, 0, 0, 640, 360);
+        const start = new Date();
+        const {
+          data: { text },
+        } = await scheduler.addJob("recognize", canvasElement);
+        const end = new Date();
+        // addMessage(
+        //   `[${start.getMinutes()}:${start.getSeconds()} - ${end.getMinutes()}:${end.getSeconds()}], ${
+        //     (end - start) / 1000
+        //   } s`
+        // );
+        text.split("\n").forEach((line) => {
+          addMessage(line);
+        });
+      };
+
+      (async () => {
+        // addMessage("Inicio");
+        for (let i = 0; i < 4; i++) {
+          const worker = createWorker();
+          await worker.load();
+          await worker.loadLanguage("eng");
+          await worker.initialize("eng");
+          scheduler.addWorker(worker);
+        }
+        // addMessage("Inicio");
+        webcamElement.addEventListener("play", play());
+        webcamElement.addEventListener("pause", () => {
+          clearInterval(timerId);
+        });
+        addMessage("Agora você pode dar o play");
+        webcamElement.controls = true;
+        play();
+   
+      })();
+      function play() {
+        if(timerId)clearInterval(timerId);
         timerId = setInterval(doOCR, 1000);
-      });
-      video.addEventListener('pause', () => {
-        clearInterval(timerId);
-      });
-      addMessage('Now you can play the video. :)');
-      video.controls = true;
-    })();
-  </script>
-</body>
+      }
+
+      function flip(){
+        webcam.flip();
+      }
+    </script>
+  </body>
 </html>
