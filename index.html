@@ -19,6 +19,7 @@
   
         <h3 id="placa"></h3>
         <h1 id="achou">PLACA</h1>
+        <h3 id="cam"></h3>
       </div>
       <div>
       <button onclick="play()">PLAY</button>
@@ -34,8 +35,9 @@
       const canvasElement = document.getElementById("canvas");
       const spanElement = document.getElementById("placa");
       const span2Element =  document.getElementById("achou");
+      const span3Element =  document.getElementById("cam");
       const webcam = new Webcam(webcamElement, "user", canvasElement);
-
+      span3Element.innerHTML = webcam.facingMode;
       webcam
         .start()
         .then((result) => {
@@ -107,8 +109,12 @@
       }
 
        function flip(){
+        webcam.facingMode = 'environment';
+        webcam.stop();
         webcam.flip();
         webcam.start();  
+        console.log(webcam)
+        span3Element.innerHTML = webcam.facingMode;
        }
     </script>
   </body>
