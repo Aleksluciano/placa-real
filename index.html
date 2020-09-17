@@ -36,12 +36,15 @@
       const spanElement = document.getElementById("placa");
       const span2Element =  document.getElementById("achou");
       const span3Element =  document.getElementById("cam");
-      const webcam = new Webcam(webcamElement, "user", canvasElement);
+    
+      const webcam = new Webcam(webcamElement, "environment", canvasElement);
       span3Element.innerHTML = webcam.facingMode;
+
       webcam
         .start()
         .then((result) => {
           console.log("webcam started");
+          
         })
         .catch((err) => {
           console.log(err);
@@ -100,7 +103,7 @@
         });
         addMessage("Agora você pode dar o play");
         webcamElement.controls = true;
-     
+      console.log(navigator.mediaDevices);
    
       })();
       function play() {
@@ -109,7 +112,10 @@
       }
 
        function flip(){
-        webcam.facingMode = 'environment';
+         if(webcam.facingMode == 'user')webcam.facingMode = 'environment';
+         else {
+        webcam.facingMode = 'user';
+         }
         webcam.stop();
         webcam.flip();
         webcam.start();  
