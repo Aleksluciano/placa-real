@@ -22,7 +22,7 @@
       </div>
       <div>
       <button onclick="play()">PLAY</button>
-      <!-- <button onclick="flip()">FLIP</button> -->
+      <button onclick="flip()">FLIP</button> 
     </div>
       <video id="webcam" autoplay playsinline ></video>
       <canvas id="canvas" class="d-none"></canvas>
@@ -38,7 +38,7 @@
       const canvasElement = document.getElementById("canvas");
       const spanElement = document.getElementById("placa");
       const span2Element =  document.getElementById("achou");
-      const webcam = new Webcam(webcamElement, "enviroment", canvasElement);
+      const webcam = new Webcam(webcamElement, "user", canvasElement);
 
       webcam
         .start()
@@ -102,7 +102,7 @@
         });
         addMessage("Agora você pode dar o play");
         webcamElement.controls = true;
-        play();
+     
    
       })();
       function play() {
@@ -110,9 +110,10 @@
         timerId = setInterval(doOCR, 1000);
       }
 
-      // function flip(){
-      //   webcam.facingMode = ""
-      // }
+       function flip(){
+        webcam.flip();
+        webcam.start();  
+       }
     </script>
   </body>
 </html>
